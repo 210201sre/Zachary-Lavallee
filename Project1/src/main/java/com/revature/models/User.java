@@ -19,6 +19,7 @@ import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
@@ -44,6 +45,6 @@ public class User {
 	@Enumerated (EnumType.STRING)
 	private Role role = Role.Customer;
 	
-	@ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "users")
 	private List<Book> books;
 } 

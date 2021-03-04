@@ -34,17 +34,16 @@ import lombok.NoArgsConstructor;
 @Data @NoArgsConstructor @AllArgsConstructor
 public class Book{
 	
-	@OneToMany(mappedBy = "books")
-	@JsonBackReference
-	private User owner;
+	@ManyToOne
+	@JoinColumn(name="id")
+	private User users;
 	
 	@Id
-	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private int bookId;
 	
 	private String title;
 	private String author;
-	private Date checkOutDate;
+	
 	
 	
 
