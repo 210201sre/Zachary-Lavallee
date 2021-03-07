@@ -1,0 +1,33 @@
+MDC.put("event", "Grant Acess");
+		MDC.put("Account Id", actId);
+		MDC.put("User Id", userId);
+		User u=userDAO.findById(userId).get();
+		Account account1=null;
+		Set<SavingsAccount> tempSAccounts=new HashSet<>();
+		tempSAccounts=savingsAccountDAO.findAll().stream().collect(Collectors.toSet());
+		Set<CheckingsAccount> tempCAccounts=new HashSet<>();
+		tempCAccounts=checkingsAccountDAO.findAll().stream().collect(Collectors.toSet());
+		Set<Account> accounts=new HashSet<>();
+		accounts.addAll(tempCAccounts);
+		accounts.addAll(tempSAccounts);
+		
+		for(Account account : accounts)
+		{
+			if(account.getId()==actId)
+				account1=account;
+		}
+		
+		if(account1==null) {
+			log.warn("account not found");
+			MDC.clear();
+			return null;
+		}
+		
+		if(account1 instanceof SavingsAccount) {
+			u.getSAccounts().add((SavingsAccount)account1);
+			((SavingsAccount) account1).getU().add(u);
+			savingsAccountDAO.save((SavingsAccount)account1);
+		}
+		else {
+			u.getCAccounts().add((CheckingsAccount)account1);
+			((CheckingsAccount) ac
