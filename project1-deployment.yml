@@ -1,0 +1,65 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  namespace: zachary-lavallee
+  name: project1
+  labels:
+    app: project1
+spec:
+  selector:
+    matchLabels:
+      app: project1
+  replicas:
+  template:
+    # Descibes the pods that will be produced by this deployment 
+    # This is a nested manafest for a pod
+    # Nested manifests do not need to include a kind or an apiVersion
+    # But they do include metadata and a spec
+    metadata: 
+      labels:
+        app: project1
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: fluent-conf
+      containers:
+      - name: fluentd
+        ports:
+        - containerPort: 24224
+        image: grafana/fluent-plugin-loki:latest
+        imagePullPolicy: IfNotPresent # Optional, since this is already the default value
+        # livenessProbe: Perhaps with more research we could inentify a URL to use for these probes
+        # readinessProbe:
+        env: 
+        - name: LOKI_URL
+          value: http://loki:3100
+        volumeMounts:
+        - name: config
+          mountPath: /fluentd/etc/fluent.conf
+          #mountPath is the path inside the container that we will mount to the destination
+          subPath: fluent.conf 
+          # subpath is the path inside the volume that we are mounting from the source 
+      - name: project1
+        image: zacharylavallee/project1:latest3
+        ports:
+        - containerPort: 8980
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: zach-credentials
+              key: url
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: zach-credentials
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: zach-credentials
+              key: password
+        imagePullPolicy: IfNotPresent #Optional, since this is already the default
+
+
